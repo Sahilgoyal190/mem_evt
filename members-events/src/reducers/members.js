@@ -1,8 +1,7 @@
 import * as actionTypes from "../actions/membersType";
-import memData from "../mockData/mem.json";
 
 const initialState = {
-  list: memData
+  list: []
 };
 
 export const members = (state = initialState, action) => {

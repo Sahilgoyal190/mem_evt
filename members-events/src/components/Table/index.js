@@ -14,7 +14,10 @@ const Table = ({ cols, data, components, handleCheckbox, showCheckbox }) => {
       <tbody>
         {data.map((d, i) => {
           return (
-            <tr className={`${d.isHighlight ? "highlight" : ""}`}>
+            <tr
+              key={`${d._id}-${i}`}
+              className={`${d.isHighlight ? "highlight" : ""}`}
+            >
               {showCheckbox && (
                 <td>
                   <input
@@ -29,12 +32,12 @@ const Table = ({ cols, data, components, handleCheckbox, showCheckbox }) => {
                 if (k.type === "custom_row") {
                   const TD = components[k.key];
                   return (
-                    <td>
+                    <td key={`${d._id}-${j}`}>
                       <TD rowData={d} key={d._id} index={i} />
                     </td>
                   );
                 }
-                return <td>{d[k.key]}</td>;
+                return <td key={`${d._id}-${j}`}>{d[k.key]}</td>;
               })}
             </tr>
           );

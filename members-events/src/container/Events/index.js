@@ -4,6 +4,7 @@ import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import Table from "../../components/Table";
 import * as memberActions from "../../actions/members";
+import * as actions from "../../actions/events";
 
 const Cols = [
   {
@@ -33,26 +34,9 @@ const Cols = [
 ];
 
 class Events extends React.Component {
-  getActionRow = props => {
-    return (
-      <div className="row">
-        <button
-          className="btn btn-danger"
-          id={props.index}
-          onClick={this.handleDelete}
-        >
-          Delete
-        </button>
-        <button className="btn btn-primary">Locate On Calender</button>
-        <button className="btn btn-success">Add Event</button>
-      </div>
-    );
-  };
-
-  components = {
-    actions: this.getActionRow
-  };
-
+  componentDidMount() {
+    this.props.getEvents(this.props.location);
+  }
   processsEventData = data => {
     const ids = this.props.location.state ? this.props.location.state.id : null;
     return data.map(d => {
@@ -97,7 +81,8 @@ const mapDispatchToProps = dispatch => {
     addOrRemoveEventToMember: bindActionCreators(
       memberActions.addOrRemoveEventToMember,
       dispatch
-    )
+    ),
+    getEvents: bindActionCreators(actions.getEvents, dispatch)
   };
 };
 

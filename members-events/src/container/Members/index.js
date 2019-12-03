@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 import Modal from "react-modal";
 import * as actions from "../../actions/members";
 import Table from "../../components/Table";
@@ -58,13 +59,6 @@ const sortOptions = [
   }
 ];
 
-const processsMemberData = data => {
-  return data.map(d => {
-    d["fullname"] = `${d.name.first} ${d.name.last}`;
-    return d;
-  });
-};
-
 class Members extends React.Component {
   constructor(props) {
     super(props);
@@ -73,6 +67,11 @@ class Members extends React.Component {
       memId: null
     };
   }
+
+  componentDidMount() {
+    this.props.getMembersList();
+  }
+
   handleDelete = e => {
     this.props.deleteMember(e.target.id);
   };
@@ -131,7 +130,6 @@ class Members extends React.Component {
   };
 
   render() {
-    const pd = processsMemberData(this.props.list);
     return (
       <div className="container">
         <div className="row">
@@ -145,21 +143,30 @@ class Members extends React.Component {
               onChange={this.handleSorting}
             >
               {sortOptions.map(s => {
-                return <option value={s.value}>{s.label}</option>;
+                return (
+                  <option value={s.value} key={s.value}>
+                    {s.label}
+                  </option>
+                );
               })}
             </select>
           </div>
         </div>
-        <Table data={pd} cols={Cols} components={this.components} />
+        <Table
+          data={this.props.list}
+          cols={Cols}
+          components={this.components}
+        />
         <Modal
           isOpen={this.state.openModal}
           onAfterOpen={this.afterOpenModal}
           onRequestClose={this.closeModal}
           className="Modal"
           overlayClassName="Overlay"
+          ariaHideApp={false}
         >
           <div className="container-fluid">
-            <div class="modal-header">
+            <div className="modal-header">
               <button
                 type="button"
                 className="close"
@@ -167,7 +174,7 @@ class Members extends React.Component {
               >
                 &times;
               </button>
-              <h4 class="modal-title">Choose Events</h4>
+              <h4 className="modal-title">Choose Events</h4>
             </div>
           </div>
           <Events memId={this.state.memId} showCheckbox />
@@ -186,6 +193,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    getMembersList: bindActionCreators(actions.getMembersList, dispatch),
     deleteMember: index => dispatch(actions.deleteMember(index)),
     sorting: (sortType, dir) => dispatch(actions.sorting(sortType, dir))
   };

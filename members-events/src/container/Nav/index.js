@@ -13,7 +13,6 @@ const RouteMap = [
 ];
 
 export const Nav = props => {
-  const pathName = props.location.pathname;
   return (
     <ul className="nav nav-tabs">
       {RouteMap.map((r, i) => {
@@ -21,6 +20,7 @@ export const Nav = props => {
           <li
             role="presentation"
             className={`${props.location.pathname === r.path ? "active" : ""}`}
+            key={r.path}
           >
             <Link to={r.path}>{r.label}</Link>
           </li>

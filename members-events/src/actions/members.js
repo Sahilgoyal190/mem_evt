@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as actionType from "./membersType";
 import * as evtActions from "./events";
 
@@ -45,4 +46,19 @@ export const addOrRemoveEventToMember = (memId, evtId) => (
       ? evtActions.decreaseEventCapacity(evtId)
       : evtActions.increaseEventCapacity(evtId)
   );
+};
+
+export const getMembersList = () => (dispatch, getState) => {
+  if (getState().members.list.length === 0) {
+    axios
+      .get("https://next.json-generator.com/api/json/get/NyNrlJTX8")
+      .then(({ data }) => {
+        const updatedData = data.map(d => {
+          d["fullname"] = `${d.name.first} ${d.name.last}`;
+          return d;
+        });
+
+        dispatch(updateMember(updatedData));
+      });
+  }
 };
