@@ -1,8 +1,9 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 import Table from "../../components/Table";
-import memData from "../../mockData/mem.json";
-import evtData from "../../mockData/evt.json";
+import * as memberActions from "../../actions/members";
 
 const Cols = [
   {
@@ -31,20 +32,7 @@ const Cols = [
   }
 ];
 
-const processsMemnerData = data => {
-  return data.map(d => {
-    d["fullname"] = `${d.organizer.first} ${d.organizer.last}`;
-    return d;
-  });
-};
-
-const Rows = props => <div>test</div>;
-
 class Events extends React.Component {
-  handleDelete(e) {
-    console.log(e.target.id);
-  }
-
   getActionRow = props => {
     return (
       <div className="row">
@@ -64,14 +52,53 @@ class Events extends React.Component {
   components = {
     actions: this.getActionRow
   };
+
+  processsEventData = data => {
+    const ids = this.props.location.state ? this.props.location.state.id : null;
+    return data.map(d => {
+      d["fullname"] = `${d.organizer.first} ${d.organizer.last}`;
+      if (ids) {
+        d.isHighlight = ids.indexOf(d._id) > -1;
+      }
+      return d;
+    });
+  };
+
+  handleCheckbox = e => {
+    const evtId = e.target.id;
+    const { addOrRemoveEventToMember, memId } = this.props;
+    addOrRemoveEventToMember(memId, evtId);
+  };
+
   render() {
-    const pd = processsMemnerData(evtData);
+    const pd = this.processsEventData(this.props.events);
     return (
       <div className="container">
-        <Table data={pd} cols={Cols} components={this.components} />
+        <Table
+          data={pd}
+          cols={Cols}
+          components={this.components}
+          handleCheckbox={this.handleCheckbox}
+          showCheckbox={this.props.showCheckbox}
+        />
       </div>
     );
   }
 }
 
-export default withRouter(Events);
+const mapStateToProps = state => {
+  return {
+    events: state.events.list
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    addOrRemoveEventToMember: bindActionCreators(
+      memberActions.addOrRemoveEventToMember,
+      dispatch
+    )
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Events));

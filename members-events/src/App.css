@@ -1,4 +1,35 @@
 tr>th,
 tr>td {
-  text-align: center;
+  text-align: left;
+}
+
+
+.ReactModal__Overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  outline: 0;
+  color: #000 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  padding: 50px 0;
+}
+
+.ReactModal__Content {
+  width: 90%;
+  margin: 0 auto;
+  border-radius: 5px;
+  background-color: #fff;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.btn-with-link>a {
+  color: #fff;
+}
+
+table>tbody>tr.highlight {
+  background-color: aquamarine !important;
 }

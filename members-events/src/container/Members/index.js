@@ -1,8 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import Modal from "react-modal";
+import * as actions from "../../actions/members";
 import Table from "../../components/Table";
-import memData from "../../mockData/mem.json";
-import evtData from "../../mockData/evt.json";
+import Events from "../Events";
 
 const Cols = [
   {
@@ -26,29 +28,58 @@ const Cols = [
     key: "phone"
   },
   {
+    label: "Events",
+    key: "events",
+    type: "custom_row"
+  },
+  {
     label: "Actions",
     key: "actions",
     type: "custom_row"
   }
 ];
 
-const processsMemnerData = data => {
+const sortOptions = [
+  {
+    label: "Sort by Name Ascending",
+    value: "name_asc"
+  },
+  {
+    label: "Sort by Name Descending",
+    value: "name_desc"
+  },
+  {
+    label: "Sort by Age Ascending",
+    value: "age_asc"
+  },
+  {
+    label: "Sort by Age Descending",
+    value: "age_desc"
+  }
+];
+
+const processsMemberData = data => {
   return data.map(d => {
     d["fullname"] = `${d.name.first} ${d.name.last}`;
     return d;
   });
 };
 
-const Rows = props => <div>test</div>;
-
 class Members extends React.Component {
-  handleDelete(e) {
-    console.log(e.target.id);
+  constructor(props) {
+    super(props);
+    this.state = {
+      openModal: false,
+      memId: null
+    };
   }
+  handleDelete = e => {
+    this.props.deleteMember(e.target.id);
+  };
 
   getActionRow = props => {
     return (
-      <div className="row">
+      <div className="btn-group">
         <button
           className="btn btn-danger"
           id={props.index}
@@ -56,34 +87,108 @@ class Members extends React.Component {
         >
           Delete
         </button>
-        <button className="btn btn-primary">
+        <button className="btn btn-primary btn-with-link">
           <Link
             to={{
               pathname: "/events",
               state: {
-                id: ["5c540cb4d1e88f219439d0bd", "5c540cb41c3f7ba1b57461e9"]
+                id: this.props.list[props.index].events
               }
             }}
           >
             Locate On Calender
           </Link>
         </button>
-        <button className="btn btn-success">Add Event</button>
+        <button
+          className="btn btn-success"
+          id={props.rowData._id}
+          onClick={this.handleModal}
+        >
+          Add Event
+        </button>
       </div>
     );
   };
 
+  getEventRow = ({ rowData }) => (
+    <span>{rowData.events ? rowData.events.length : 0}</span>
+  );
+
   components = {
-    actions: this.getActionRow
+    actions: this.getActionRow,
+    events: this.getEventRow
   };
+
+  handleModal = e => {
+    this.setState({ openModal: true, memId: e.target.id });
+  };
+
+  handleCloseModal = () => this.setState({ openModal: false, memId: null });
+
+  handleSorting = e => {
+    const [type, dir] = e.target.value.split("_");
+    this.props.sorting(type, dir);
+  };
+
   render() {
-    const pd = processsMemnerData(memData, evtData);
+    const pd = processsMemberData(this.props.list);
     return (
       <div className="container">
+        <div className="row">
+          <div className="col-md-6">
+            <h2>Members List</h2>
+          </div>
+          <div className="col-md-3 col-md-offset-3">
+            <select
+              className="form-control"
+              name="sort"
+              onChange={this.handleSorting}
+            >
+              {sortOptions.map(s => {
+                return <option value={s.value}>{s.label}</option>;
+              })}
+            </select>
+          </div>
+        </div>
         <Table data={pd} cols={Cols} components={this.components} />
+        <Modal
+          isOpen={this.state.openModal}
+          onAfterOpen={this.afterOpenModal}
+          onRequestClose={this.closeModal}
+          className="Modal"
+          overlayClassName="Overlay"
+        >
+          <div className="container-fluid">
+            <div class="modal-header">
+              <button
+                type="button"
+                className="close"
+                onClick={this.handleCloseModal}
+              >
+                &times;
+              </button>
+              <h4 class="modal-title">Choose Events</h4>
+            </div>
+          </div>
+          <Events memId={this.state.memId} showCheckbox />
+        </Modal>
       </div>
     );
   }
 }
 
-export default Members;
+const mapStateToProps = state => {
+  return {
+    list: state.members.list,
+    events: state.events.list
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    deleteMember: index => dispatch(actions.deleteMember(index)),
+    sorting: (sortType, dir) => dispatch(actions.sorting(sortType, dir))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Members);
