@@ -14,19 +14,23 @@ const RouteMap = [
 
 export const Nav = props => {
   return (
-    <ul className="nav nav-tabs">
-      {RouteMap.map((r, i) => {
-        return (
-          <li
-            role="presentation"
-            className={`${props.location.pathname === r.path ? "active" : ""}`}
-            key={r.path}
-          >
-            <Link to={r.path}>{r.label}</Link>
-          </li>
-        );
-      })}
-    </ul>
+    <nav className="navbar navbar-inverse">
+      <ul className="nav navbar-nav">
+        {RouteMap.map((r, i) => {
+          return (
+            <li
+              role="presentation"
+              className={`${
+                props.location.pathname === r.path ? "active" : ""
+              }`}
+              key={r.path}
+            >
+              <Link to={r.path}>{r.label}</Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 };
 
